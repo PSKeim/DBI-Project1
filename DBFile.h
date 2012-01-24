@@ -31,5 +31,7 @@ public:
 	File f;
 	Page p;
 
+	ofstream dbFile; //Output stream for writing to file
+	Record currentRec;
 };
 #endif
