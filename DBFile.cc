@@ -123,12 +123,28 @@ int DBFile::GetNext (Record &fetchme) {
 //This version of GetNExt returns the next record that matches the CNF given
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 	ComparisonEngine comp;
-	
-	if(p.GetFirst(&fetchme) == ){
+
+	int ret = GetNext(fetchme);
+
+	if(ret == 0){ 
+		return 0; //Nothing in the file, so nothing to do here!
+	}	
+	while(!comp.Compare (&fetchme, &literal, &cnf)){
+		ret = GetNext(fetchme);
+
+		if(ret == 0){ 
+			return 0; //Nothing in the file, so nothing to do here!
+		}	
+		/*if(p.GetFirst(&fetchme) == 0){
+			globalPageIndex++; //Update page to the next one
+			if(globalPageIndex < f.GetLength()-1){ //If nothing is returned, we check to see if p is the last page
+				f.GetPage(&p,globalPageIndex);
+				p.GetFirst(&fetchme);
+			}
+
+			return 0;//No records left
+		}*/
 	}
 
+	return 1;
 }
-
-/*int DBFile::SafeIndex(){
-
-}*/
