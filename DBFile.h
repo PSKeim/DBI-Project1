@@ -30,6 +30,7 @@ public:
 
 	File f;
 	Page p;
+	int globalPageIndex;
 
 	Record currentRec;
 };
