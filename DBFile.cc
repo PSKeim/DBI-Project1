@@ -43,11 +43,11 @@ void DBFile::Load (Schema &f_schema, char *loadpath) {
        FILE *tableFile = fopen (loadpath, "r");
 	//Code is more or less ripped from main.cc
         Record temp; //Holding variable
-	
+	//cout << "File size now is: " << f.GetLength() << endl;
 	// read in all of the records from the text file and see if they match
 	// the CNF expression that was typed in
 	int counter = 0; //Counter for debug. Take out of final product!
-	int pageCounter = 0; //File needs a page offset to know where it is putting the page. This is it.
+	globalPageIndex = 0; //File needs a page offset to know where it is putting the page. This is it.
         while (temp.SuckNextRecord (&f_schema, tableFile) == 1) {
 		counter++;//Debug part of loop, just making sure it works
 		if (counter % 10000 == 0) {
@@ -56,8 +56,8 @@ void DBFile::Load (Schema &f_schema, char *loadpath) {
 		//Right now Temp is the next record from our table file...
 		if(p.Append(&temp) == 0){ //If the append function returns a 0, the append failed (page is full)
 			//So we need to add the page to the file, and start again
-			f.AddPage(&p, pageCounter);
-			pageCounter++;
+			f.AddPage(&p, globalPageIndex);
+			globalPageIndex++;
 			p.EmptyItOut();
 			if(p.Append(&temp) == 0){
 				cerr << "Page repeatedly failed to append! Skipping record!";
@@ -65,8 +65,9 @@ void DBFile::Load (Schema &f_schema, char *loadpath) {
 		}
        }
 	//We need to add the final page to the File. 
-	f.AddPage(&p,pageCounter);
+	f.AddPage(&p,globalPageIndex);
 	// Done? Maybe? I dunno.*/
+	//cout << "File size after load is: " << f.GetLength() << endl;
 }
 
 int DBFile::Open (char *f_path) {
@@ -98,6 +99,32 @@ void DBFile::Add (Record &rec) {
 //Wait. That doesn't make sense. We have to get the last page... and then add it? Because f.AddPage writes it out to file.
 //But if we get the last page, does it zero it out to be nothing? MUST CHECK!
 
+	int page = f.GetLength()-2;
+	cout << "Page is "<<page<<endl;
+	cout << "GetLength is " << f.GetLength() << endl;
+	if(page < 0){ //File has nothing in it (i.e. GetLength returned 0, so page = -1)
+		p.Append(&rec); //If the file has nothing in it, neither does the page, so it's a clean append.
+		f.AddPage(&p,0); //We then add the page, and leave
+		return;
+	}
+	cout << "Getting page " << endl;
+	f.GetPage(&p,page); //If the file does have at least one page, we get it
+	cout << "Page got" <<endl;
+	if(p.Append(&rec) == 1){ //Now we test the append. If it goes through
+		cout << "Appended to current page" <<endl;
+		f.AddPage(&p,page); //We overwrite the file's page with the new one
+		cout << "Page re-added" <<endl;
+		return; //And then we leave
+	}
+
+	//If the page append doesn't go through, then we have to add a new page
+	p.EmptyItOut(); //Clear the page
+	p.Append(&rec); //Add the record
+	cout << "Appending to new p age" << endl;
+	page++; //Increment which page offset we're talking about
+	cout << "Adding new page to file" <<endl;
+	f.AddPage(&p, page); //Add the page, and then we out.
+	cout << "Added" <<endl;
 }
 
 //This version of GetNext gets the next record from the File

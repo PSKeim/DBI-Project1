@@ -43,6 +43,7 @@ int main () {
         // read in all of the records from the text file and see if they match
 	// the CNF expression that was typed in
 	int counter = 0;
+	int pingCounter = 0;
 	ComparisonEngine comp;
         while (temp.SuckNextRecord (&mySchema, tableFile) == 1) {
 		counter++;
@@ -50,11 +51,13 @@ int main () {
 			cerr << counter << "\n";
 		}
 
-		if (comp.Compare (&temp, &literal, &myComparison))
+		if (comp.Compare (&temp, &literal, &myComparison)){
+			pingCounter++;
                 	temp.Print (&mySchema);
+		}
 
         }
-
+	cout << "Found " << pingCounter << " records" << endl;
 }
 
 
