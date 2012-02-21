@@ -13,7 +13,13 @@
 
 DBFile::DBFile () {	
 }
-
+/**
+@purpose Creates a file at a given path, as well as a meta-data file for that file
+@param *f_path The path at which the file is to be created
+@param f_type The type (currently only Heap) that the file uses as a D.S.
+@param *startup Dunno what this does yet.
+@return 1 if successful, 0 if not
+*/
 int DBFile::Create (char *f_path, fType f_type, void *startup) {
 	//Creates a file at f_path. 
 	//Currently, that's all this does. Will figure out what needs to get put in that file, probably in Close
@@ -35,7 +41,11 @@ int DBFile::Create (char *f_path, fType f_type, void *startup) {
 
 	return 0;
 }
-
+/**
+@purpose Given a schema and a load path, this loads the datbase table into our file
+@param &f_schema The pointer to the schema that the table uses
+@param *loadpath The path that the table file is located at
+*/
 void DBFile::Load (Schema &f_schema, char *loadpath) {
 //Loads a bunch of data in from the file at loadpath.
 //Stores it into the file.
@@ -70,12 +80,20 @@ void DBFile::Load (Schema &f_schema, char *loadpath) {
 	//cout << "File size after load is: " << f.GetLength() << endl;
 }
 
+/**
+@purpose Opens a previously saved File
+@param f_path Location of the File
+@return 1 on success, system exits on failure
+*/
 int DBFile::Open (char *f_path) {
 //Loads a previously saved DBFile in, somehow
 	f.Open(1,f_path);
 	return 1;
 }
 
+/**
+@purpose Moves the page we've got to point at the first page in the file (first record in the DB)
+*/
 void DBFile::MoveFirst () {
 //Move it to point to the first page in File. Or something?
 //Use File's GetPage to get the first page (offset 1?), and set p as it.
@@ -85,13 +103,20 @@ globalPageIndex = 0;
 f.GetPage(&p,globalPageIndex);
 }
 
+/**
+@purpose Closes the DB File
+@return 1 on succes
+*/
 int DBFile::Close () {
 		//Does some closing stuff, such as closing the file, and writing out an extra metadata that I might need.
 		f.Close();
 		//dbFile.close();  // This'll be useful later if I leave it hanging open in Create
 		return 1;
 }
-
+/**
+@purpose Adds a record to the end of the DBFile
+@param &rec The record to be added
+*/
 void DBFile::Add (Record &rec) {
 //Okay, to Add, we must make sure that p = last page of the file.
 //And then do shit to it. Namely, SCIENCE.
@@ -127,7 +152,11 @@ void DBFile::Add (Record &rec) {
 	cout << "Added" <<endl;
 }
 
-//This version of GetNext gets the next record from the File
+/**
+@purpose Gets the next record from file
+@param &fetchme The record that we'll be putting the found record into
+@return 0 on failure, 1 on success
+*/
 int DBFile::GetNext (Record &fetchme) {
 	//The first thing to do is fetch through the current page.
 	//If the page returns 0, then we need to load the next page and get from there
@@ -147,7 +176,12 @@ int DBFile::GetNext (Record &fetchme) {
 	return 1; 
 }
 
-//This version of GetNExt returns the next record that matches the CNF given
+/**
+@purpose Gets the next record that matches a CNF from file
+@param &fetchme Same as in GetNext
+@param &cnf The CNF that we'll compare this stuff to
+@param &literal The literal record that we use for comparison. (I don't get it)
+*/
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 	ComparisonEngine comp;
 

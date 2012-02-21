@@ -75,6 +75,7 @@ void test3 () {
 }
 
 //Scan of a DBFile, addition of a record, and then a scan to ensure that it was added
+//User added test, to see if it works, change tindx in the while loop down there to be > 4, rather than >3
 void test4 (){
 	//Initial scan
 	test2();
@@ -103,12 +104,12 @@ int main () {
 	void (*test_ptr[]) () = {&test1, &test2, &test3, &test4};  
 
 	int tindx = 0;
-	while (tindx < 1 || tindx > 4) {
+	while (tindx < 1 || tindx > 3) {
 		cout << " select test: \n";
 		cout << " \t 1. load file \n";
 		cout << " \t 2. scan \n";
 		cout << " \t 3. scan & filter \n ";
-		cout << " \t 4. Record Addition \n \t ";
+		cout << " \t 4. Record Addition (full file) \n";
 		cin >> tindx;
 	}
 
